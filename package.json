@@ -13,9 +13,6 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@aura/types": "file:packages/types",
-    "@aura/ui": "file:packages/ui",
-    "@aura/utils": "file:packages/utils",
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
     "appwrite": "^23.0.0",
