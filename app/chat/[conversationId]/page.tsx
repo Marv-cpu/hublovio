@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { databases, account, client } from '@aura/utils/appwriteConfig';
-import { Query, ID, Storage } from 'appwrite';
+import { Query, ID, Storage, Models, RealtimeResponseEvent } from 'appwrite';
 import Image from 'next/image';
 import { 
   ChevronLeft, 
@@ -20,6 +20,32 @@ import {
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
+// Define types
+interface User {
+  $id: string;
+  name?: string;
+  email?: string;
+}
+
+// Profile extends Appwrite's Document interface
+interface Profile extends Models.Document {
+  userId: string;
+  username?: string;
+  profilePictureUrl?: string;
+  bio?: string;
+  // Add any other custom fields your profile has
+}
+
+interface MessageDocument extends Models.Document {
+  id?: number;
+  conversationId: string;
+  senderId: string;
+  receiverId: string;
+  message: string;
+  createdAt: string;
+  isRead: boolean;
+}
+
 const storage = new Storage(client);
 
 const DATABASE_ID = '698835eb000eb728917a';
@@ -32,15 +58,15 @@ export default function ChatPage() {
   const conversationId = params?.conversationId as string;
   const router = useRouter();
   
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<MessageDocument[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [otherUser, setOtherUser] = useState<any>(null);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [otherUser, setOtherUser] = useState<Profile | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [showEmoji, setShowEmoji] = useState(false);
   
   const [isRecording, setIsRecording] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const streamRef = useRef<MediaStream | null>(null); // ✅ Ref to track the stream
+  const streamRef = useRef<MediaStream | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
   const [isUploading, setIsUploading] = useState(false);
@@ -57,10 +83,14 @@ export default function ChatPage() {
   const fetchMessages = useCallback(async () => {
     if (!conversationId) return;
     try {
-      const res = await databases.listDocuments(DATABASE_ID, MESSAGES_COLLECTION_ID, [
-        Query.equal('conversationId', conversationId),
-        Query.orderAsc('createdAt')
-      ]);
+      const res = await databases.listDocuments<MessageDocument>(
+        DATABASE_ID, 
+        MESSAGES_COLLECTION_ID, 
+        [
+          Query.equal('conversationId', conversationId),
+          Query.orderAsc('createdAt')
+        ]
+      );
       setMessages(res.documents);
       setTimeout(scrollToBottom, 100);
     } catch (err) {
@@ -73,11 +103,11 @@ export default function ChatPage() {
 
     const unsubscribe = client.subscribe(
       [`databases.${DATABASE_ID}.collections.${MESSAGES_COLLECTION_ID}.documents`], 
-      (response) => {
-        if (response.events.some(e => e.includes('.create'))) {
-          const newDoc = response.payload as any;
+      (response: RealtimeResponseEvent<MessageDocument>) => {
+        if (response.events.some((e: string) => e.includes('.create'))) {
+          const newDoc = response.payload;
           if (newDoc.conversationId === conversationId) {
-            setMessages((prev) => {
+            setMessages((prev: MessageDocument[]) => {
               if (prev.find((m) => m.$id === newDoc.$id)) return prev;
               return [...prev, newDoc];
             });
@@ -102,7 +132,9 @@ export default function ChatPage() {
         const otherUserId = participants.find(id => id !== user.$id);
         
         if (otherUserId) {
-          const profileRes = await databases.listDocuments(DATABASE_ID, PROFILES_COLLECTION_ID, [
+          const profileRes = await databases.listDocuments<Profile>(
+            DATABASE_ID, 
+            PROFILES_COLLECTION_ID, [
             Query.equal('userId', otherUserId),
             Query.limit(1)
           ]);
@@ -117,7 +149,7 @@ export default function ChatPage() {
     };
     initChat();
 
-    // ✅ CLEANUP: Stop any active stream if the component unmounts
+    // CLEANUP: Stop any active stream if the component unmounts
     return () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
@@ -137,7 +169,12 @@ export default function ChatPage() {
         createdAt: new Date().toISOString(),
         isRead: false
       };
-      await databases.createDocument(DATABASE_ID, MESSAGES_COLLECTION_ID, ID.unique(), payload);
+      await databases.createDocument<MessageDocument>(
+        DATABASE_ID, 
+        MESSAGES_COLLECTION_ID, 
+        ID.unique(), 
+        payload
+      );
     } catch (err) {
       console.error("Save Error:", err);
     }
@@ -170,7 +207,7 @@ export default function ChatPage() {
     }
   };
 
-  // ✅ FIXED RECORDING LOGIC
+  // FIXED RECORDING LOGIC
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -179,7 +216,7 @@ export default function ChatPage() {
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
 
-      mediaRecorder.ondataavailable = (e) => { 
+      mediaRecorder.ondataavailable = (e: BlobEvent) => { 
         if (e.data.size > 0) audioChunksRef.current.push(e.data); 
       };
 
@@ -241,6 +278,10 @@ export default function ChatPage() {
     return <p className="text-[15px] font-medium leading-relaxed break-words">{message}</p>;
   };
 
+  const handleEmojiSelect = (emoji: any) => {
+    setNewMessage(prev => prev + emoji.native);
+  };
+
   if (isLoading) return <div className="h-screen flex items-center justify-center bg-white text-pink-500 font-bold animate-pulse">AURA CONNECT...</div>;
 
   return (
@@ -266,7 +307,7 @@ export default function ChatPage() {
       </header>
 
       <main className="flex-1 overflow-y-auto p-6 space-y-4 bg-white custom-scrollbar">
-        {messages.map((msg) => {
+        {messages.map((msg: MessageDocument) => {
           const isMe = msg.senderId === currentUser?.$id;
           return (
             <div key={msg.$id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
@@ -290,21 +331,49 @@ export default function ChatPage() {
         )}
         {showEmoji && (
           <div className="absolute bottom-24 right-6 z-50 shadow-2xl rounded-2xl overflow-hidden border">
-             <button onClick={() => setShowEmoji(false)} className="absolute top-2 right-2 z-[60] bg-slate-800 rounded-full p-1 text-white"><X size={16} /></button>
-             <Picker data={data} onEmojiSelect={(e: any) => setNewMessage(p => p + e.native)} theme="light" />
+             <button 
+               type="button"
+               onClick={() => setShowEmoji(false)} 
+               className="absolute top-2 right-2 z-[60] bg-slate-800 rounded-full p-1 text-white hover:bg-slate-700"
+             >
+               <X size={16} />
+             </button>
+             <Picker 
+               data={data} 
+               onEmojiSelect={handleEmojiSelect} 
+               theme="light" 
+             />
           </div>
         )}
         <form onSubmit={sendMessage} className="flex items-center gap-3 bg-[#F1F2F6] p-2 rounded-[2rem] border border-slate-200">
-          <button type="button" onClick={() => fileInputRef.current?.click()} className="p-3 text-slate-400 hover:text-pink-500 transition-colors">
+          <button 
+            type="button" 
+            onClick={() => fileInputRef.current?.click()} 
+            className="p-3 text-slate-400 hover:text-pink-500 transition-colors"
+          >
             <Plus size={22} />
-            <input ref={fileInputRef} type="file" hidden accept="image/*" onChange={handleImageUpload} />
+            <input 
+              ref={fileInputRef} 
+              type="file" 
+              hidden 
+              accept="image/*" 
+              onChange={handleImageUpload} 
+            />
           </button>
           <input 
-            value={newMessage} onChange={(e) => setNewMessage(e.target.value)}
-            disabled={isRecording || isUploading} placeholder={isUploading ? "Uploading..." : "Type a message..."}
+            value={newMessage} 
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewMessage(e.target.value)}
+            disabled={isRecording || isUploading} 
+            placeholder={isUploading ? "Uploading..." : "Type a message..."}
             className="flex-1 bg-transparent border-none outline-none text-sm px-2 text-slate-900"
           />
-          <button type="button" onClick={() => setShowEmoji(!showEmoji)} className="p-2 text-slate-400 hover:text-pink-500 transition-colors"><Smile size={22} /></button>
+          <button 
+            type="button" 
+            onClick={() => setShowEmoji(!showEmoji)} 
+            className="p-2 text-slate-400 hover:text-pink-500 transition-colors"
+          >
+            <Smile size={22} />
+          </button>
           
           {/* MIC BUTTON */}
           <button 
@@ -315,7 +384,11 @@ export default function ChatPage() {
             {isRecording ? <Square size={20} fill="currentColor" /> : <Mic size={22} />}
           </button>
 
-          <button type="submit" disabled={!newMessage.trim() || isUploading} className="bg-gradient-to-tr from-pink-500 to-purple-600 p-3 rounded-full text-white shadow-lg hover:scale-105 transition-transform disabled:opacity-50">
+          <button 
+            type="submit" 
+            disabled={!newMessage.trim() || isUploading} 
+            className="bg-gradient-to-tr from-pink-500 to-purple-600 p-3 rounded-full text-white shadow-lg hover:scale-105 transition-transform disabled:opacity-50"
+          >
             {isUploading ? <Loader2 size={20} className="animate-spin" /> : <Send size={20} />}
           </button>
         </form>
