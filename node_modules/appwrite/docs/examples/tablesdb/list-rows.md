@@ -1,3 +1,4 @@
+```javascript
 import { Client, TablesDB } from "appwrite";
 
 const client = new Client()
@@ -11,7 +12,9 @@ const result = await tablesDB.listRows({
     tableId: '<TABLE_ID>',
     queries: [], // optional
     transactionId: '<TRANSACTION_ID>', // optional
-    total: false // optional
+    total: false, // optional
+    ttl: 0 // optional
 });
 
 console.log(result);
+```
