@@ -90,10 +90,10 @@ export default function MessagesPage() {
           }
 
           // If not found in messages, try to parse from conversationId (format: userA_userB)
-          if (!otherUserId && conv.conversationId && conv.conversationId.includes('_')) {
-            const participants = conv.conversationId.split('_');
-            otherUserId = participants.find(id => id !== user.$id);
-          }
+         if (!otherUserId && conv.conversationId && conv.conversationId.includes('_')) {
+  const participants = conv.conversationId.split('_');
+  otherUserId = participants.find((id: string) => id !== user.$id);
+}
 
           if (otherUserId) {
             try {
