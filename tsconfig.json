@@ -16,7 +16,8 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./*"],
-      "@aura/utils/*": ["../../packages/utils/*"]
+      "@aura/utils/*": ["../../packages/utils/*"],
+      "@aura/*": ["./*"]
     },
     "plugins": [
       {
