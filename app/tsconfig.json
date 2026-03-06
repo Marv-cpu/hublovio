@@ -17,7 +17,7 @@
     "paths": {
       "@/*": ["./*"],
       "@aura/utils/*": ["../../packages/utils/*"],
-      "@aura/*": ["./*"]
+      "@aura/*": ["./src/*"]
     },
     "plugins": [
       {
