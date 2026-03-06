@@ -2,7 +2,7 @@
   "name": "aura-connect",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "npm@10.8.2",
+  "packageManager": "npm@9.8.0",
   "workspaces": [
     "packages/*",
     "apps/*"
