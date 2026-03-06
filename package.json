@@ -1,14 +1,16 @@
 {
   "name": "web",
-  "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
+    "dev": "next dev",
     "start": "next start",
     "lint": "eslint ."
   },
   "dependencies": {
+    "@aura/types": "file:../../packages/types",
+    "@aura/ui": "file:../../packages/ui",
+    "@aura/utils": "file:../../packages/utils",
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
     "appwrite": "^23.0.0",
@@ -19,12 +21,15 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.1",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "autoprefixer": "^10.4.27",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
-    "tailwindcss": "^4",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^4.2.1",
     "typescript": "^5"
   }
 }
