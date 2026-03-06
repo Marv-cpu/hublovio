@@ -1,8 +1,10 @@
 {
-  "buildCommand": "next build",
-  "outputDirectory": ".next",
-  "installCommand": "npm install",
-  "devCommand": "next dev",
-  "framework": "nextjs",
-  "rootDirectory": "apps/web"
+  "projects": {
+    "web": {
+      "rootDirectory": "apps/web",
+      "buildCommand": "next build",
+      "outputDirectory": ".next",
+      "framework": "nextjs"
+    }
+  }
 }
