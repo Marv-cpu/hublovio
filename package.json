@@ -1,9 +1,15 @@
 {
   "name": "web",
+  "version": "0.1.0",
   "private": true,
+  "packageManager": "npm@9.8.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "build": "next build",
     "dev": "next dev",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint ."
   },
