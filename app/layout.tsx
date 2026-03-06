@@ -32,7 +32,7 @@ export default function RootLayout({
           {/* The Sidebar component handles its own visibility. 
               It will return null on /auth or / landing pages.
           */}
-          <Sidebar />
+          < Sidebar />
           
           <main className="flex-1">
             {children}
