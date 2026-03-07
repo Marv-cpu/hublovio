@@ -1,0 +1,10 @@
+{
+  "name": "@aura/utils",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "dependencies": {
+    "appwrite": "^23.0.0"
+  }
+}
