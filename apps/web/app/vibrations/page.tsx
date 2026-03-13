@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { databases, account } from '@/utils/appwriteConfig';
+import { databases, account } from '@aura/utils/appwriteConfig';
 import { Query, Models } from 'appwrite';
 import { Check, X, Zap, Send, Clock, UserCheck, Users } from 'lucide-react'; 
 import { useRouter } from 'next/navigation';

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { authService } from '@aura/utils/auth';
-import { client, account } from '@/utils/appwriteConfig';
+import client, { account } from '@aura/utils/appwriteConfig';
 import { Zap, Radio, User, LogOut, Sparkles } from 'lucide-react';
 
 const DATABASE_ID = '698835eb000eb728917a';

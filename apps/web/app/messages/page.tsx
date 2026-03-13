@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { databases, account } from '@/utils/appwriteConfig';
+import { databases, account } from '@aura/utils/appwriteConfig';
 import { Query } from 'appwrite';
 import { ChevronRight, MessageCircle, Heart } from 'lucide-react';
 
