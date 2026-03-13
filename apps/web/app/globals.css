@@ -1,0 +1,75 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* === Root Colors & Theme Variables === */
+:root {
+  --aura-black: #0D0B14;
+  --aura-purple-main: #7C3AED;
+  --aura-purple-dark: #4C1D95;
+  --aura-pink: #EC4899;
+  --aura-glow: rgba(124, 58, 237, 0.4);
+}
+
+/* === Body & Global Background === */
+body {
+  background: radial-gradient(circle at 30% 30%, #2E1065 0%, #0D0B14 100%);
+  color: white;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  font-smooth: always;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* === Floating Ambient Glow Layer === */
+.ambient-glow {
+  @apply absolute inset-0 pointer-events-none z-0;
+  background: radial-gradient(circle, var(--aura-purple-main)/20, transparent 70%);
+  animation: glowPulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes glowPulse {
+  0% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.05); }
+  100% { opacity: 0.3; transform: scale(1); }
+}
+
+/* === Components === */
+@layer components {
+  /* Premium Aura Button */
+  .btn-aura {
+    @apply bg-[#7C3AED] hover:bg-[#4C1D95] text-white font-bold 
+           py-4 px-8 rounded-full transition-all duration-300 
+           shadow-lg hover:shadow-[0_0_25px_rgba(124,58,237,0.6)] 
+           active:scale-95 uppercase tracking-widest text-[10px];
+  }
+
+  /* Glassmorphism Panel */
+  .glass-panel {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] 
+           shadow-[0_0_25px_rgba(124,58,237,0.2)] p-6;
+  }
+
+  /* Floating Hearts / Particles */
+  .neon-heart {
+    @apply absolute pointer-events-none z-10 text-pink-500/30 blur-[1px];
+    animation: floatUp linear infinite;
+  }
+
+  @keyframes floatUp {
+    0% { transform: translateY(0) scale(0.8); opacity: 0; }
+    20% { opacity: 0.4; }
+    80% { opacity: 0.4; }
+    100% { transform: translateY(-110vh) scale(1.2); opacity: 0; }
+  }
+}
+
+/* === Utility Tweaks === */
+.backdrop-glow {
+  @apply backdrop-blur-lg bg-white/5 border border-white/10 rounded-xl shadow-lg;
+}
+
+.text-glow {
+  text-shadow: 0 0 10px var(--aura-purple-main), 0 0 20px var(--aura-pink);
+}
